@@ -1,3 +1,6 @@
 [submodule "roles/network-dmvpn"]
 	path = roles/network-dmvpn
 	url = git@github.com:ismc/ansible-network-dmvpn.git
+[submodule "roles/cloudbuilder"]
+	path = roles/cloudbuilder
+	url = git@github.com:ismc/ansible-cloudbuilder.git
