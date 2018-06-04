@@ -1,0 +1,29 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+    - assert:
+        that:
+          - cloud_model is defined
+        msg: "You must specify a model, e.g. -e 'cloud_model=csr-lab1.yml'"
+
+    - include_role:
+        name: cloudbuilder
+        tasks_from: build
+      tags:
+        - build
+
+    - include_role:
+        name: cloudbuilder
+        tasks_from: facts
+      tags:
+        - facts
+
+    - debug: var=hostvars
+
+    - include_role:
+        name: cloudbuilder
+        tasks_from: inventory
+      tags:
+        - inventory

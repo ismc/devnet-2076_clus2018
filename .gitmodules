@@ -1,0 +1,3 @@
+[submodule "roles/network-dmvpn"]
+	path = roles/network-dmvpn
+	url = git@github.com:ismc/ansible-network-dmvpn.git
