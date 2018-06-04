@@ -1,0 +1,4 @@
+*.retry
+/keys/
+/inventory/
+/licenses/

@@ -28,7 +28,7 @@ pipeline {
                         reference: '',
                         trackingSubmodules: false]],
                     /* userRemoteConfigs: scm.userRemoteConfigs */
-                    userRemoteConfigs: [[credentialsId: 'scarter-jenkins_key', url: 'git@github.com:ismc/netdevops.git']]
+                    userRemoteConfigs: [[credentialsId: 'scarter-jenkins_key', url: 'git@github.com:ismc/devnet-2076_clus2018.git']]
                 ])
                 checkout([$class: 'GitSCM',
                     branches: [[name: '*/master']],
@@ -46,7 +46,7 @@ pipeline {
                         echo 'Destroying Cloud...'
                         retry(3) {
                             withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'Ansible (scarter)']]) {
-                                ansiblePlaybook colorized: true, extras: "-e cloud_model=wan-testbed -e cloud_inventory_dir=${env.ANSIBLE_INVENTORY_DIR} -e cloud_instance=wan-testbed -e cloud_project=scarter -e cloud_key_name=scarter-jenkins", playbook: 'cloud/destroy-cloud.yml'
+                                ansiblePlaybook colorized: true, extras: "-e cloud_model=wan-testbed -e cloud_inventory_dir=${env.ANSIBLE_INVENTORY_DIR} -e cloud_instance=wan-testbed -e cloud_project=scarter -e cloud_key_name=scarter-jenkins", playbook: 'destroy-cloud.yml'
                             }
                         }
                     } catch (e) {
@@ -59,7 +59,7 @@ pipeline {
             steps {
                 echo 'Building Cloud...'
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'Ansible (scarter)']]) {
-                  ansiblePlaybook colorized: true, extras: "-e cloud_model=wan-testbed -e cloud_inventory_dir=${env.ANSIBLE_INVENTORY_DIR} -e cloud_instance=wan-testbed -e cloud_project=scarter -e cloud_key_name=scarter-jenkins", playbook: 'cloud/build-cloud.yml'
+                  ansiblePlaybook colorized: true, extras: "-e cloud_model=wan-testbed -e cloud_inventory_dir=${env.ANSIBLE_INVENTORY_DIR} -e cloud_instance=wan-testbed -e cloud_project=scarter -e cloud_key_name=scarter-jenkins", playbook: 'build-cloud.yml'
                 }
                 script {
                     try {
@@ -79,23 +79,14 @@ pipeline {
         }
         stage('Run Tests') {
             steps {
-                echo 'Wait for the Routers to come up...'
-                ansiblePlaybook credentialsId: 'scarter-jenkins_key', colorized: true, limit: 'network', disableHostKeyChecking: true, inventory: "${env.ANSIBLE_INVENTORY_DIR}/wan-testbed.yml", playbook: 'common/check-ssh.yml'
-
                 echo 'Running network-system.yml...'
-                ansiblePlaybook credentialsId: 'scarter-jenkins_key', colorized: true, disableHostKeyChecking: true, inventory: "${env.ANSIBLE_INVENTORY_DIR}/wan-testbed.yml", playbook: 'net/network-system.yml'
-
-                echo 'Running network-security.yml...'
-                ansiblePlaybook credentialsId: 'scarter-jenkins_key', colorized: true, disableHostKeyChecking: true, inventory: "${env.ANSIBLE_INVENTORY_DIR}/wan-testbed.yml", playbook: 'net/network-security.yml'
-
-                echo 'Running network-interfaces.yml...'
-                ansiblePlaybook credentialsId: 'scarter-jenkins_key', colorized: true, disableHostKeyChecking: true, inventory: "${env.ANSIBLE_INVENTORY_DIR}/wan-testbed.yml", playbook: 'net/network-interfaces.yml'
+                ansiblePlaybook credentialsId: 'scarter-jenkins_key', colorized: true, disableHostKeyChecking: true, inventory: "${env.ANSIBLE_INVENTORY_DIR}/wan-testbed.yml", playbook: 'network-system.yml'
 
                 echo 'Running network-dmvpn.yml...'
-                ansiblePlaybook credentialsId: 'scarter-jenkins_key', colorized: true, disableHostKeyChecking: true, inventory: "${env.ANSIBLE_INVENTORY_DIR}/wan-testbed.yml", playbook: 'net/network-dmvpn.yml'
+                ansiblePlaybook credentialsId: 'scarter-jenkins_key', colorized: true, disableHostKeyChecking: true, inventory: "${env.ANSIBLE_INVENTORY_DIR}/wan-testbed.yml", playbook: 'network-dmvpn.yml'
 
                 echo 'Running network-dmvpn-check.yml...'
-                ansiblePlaybook credentialsId: 'scarter-jenkins_key', colorized: true, disableHostKeyChecking: true, inventory: "${env.ANSIBLE_INVENTORY_DIR}/wan-testbed.yml", playbook: 'net/network-dmvpn-check.yml'
+                ansiblePlaybook credentialsId: 'scarter-jenkins_key', colorized: true, disableHostKeyChecking: true, inventory: "${env.ANSIBLE_INVENTORY_DIR}/wan-testbed.yml", playbook: 'network-dmvpn-check.yml'
             }
         }
         stage('Clean Workspace') {

@@ -10,6 +10,13 @@
       - example.net
 
   tasks:
+    - name: Check for SSH prompt (timeout 10min)
+      wait_for:
+        port: 22
+        host: "{{ ansible_host }}"
+        timeout: 600
+      delegate_to: localhost
+
     - name: Configure the hostname and domain name
       net_system:
         hostname: "{{ inventory_hostname }}"
