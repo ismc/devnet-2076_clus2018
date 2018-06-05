@@ -4,3 +4,6 @@
 [submodule "roles/cloudbuilder"]
 	path = roles/cloudbuilder
 	url = git@github.com:ismc/ansible-cloudbuilder.git
+[submodule "roles/network-backup"]
+	path = roles/network-backup
+	url = git@github.com:ismc/ansible-network-backup.git
