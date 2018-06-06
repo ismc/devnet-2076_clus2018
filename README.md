@@ -51,7 +51,7 @@ Integration testing is done when we integrate the Roles (i.e. the units) into th
 
 ## Test network
 
-[wan-testbed](https://raw.githubusercontent.com/ismc/devnet-2076_clus2018/master/wan-testbed.png)
+![wan-testbed](wan-testbed.png)
 
 ## Usage
 
