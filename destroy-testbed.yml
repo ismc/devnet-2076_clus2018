@@ -2,6 +2,11 @@
 - hosts: localhost
   connection: local
   gather_facts: no
+  vars:
+    - cloud_model: wan-testbed
+    - cloud_project: scarter
+    - cloud_inventory_dir: "{{ playbook_dir }}/inventory/test"
+    - cloud_key_name: scarter-jenkins
   tasks:
     - assert:
         that:
