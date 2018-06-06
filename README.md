@@ -8,7 +8,7 @@ Ansible is simply a tool that automates the individual tasks that are normally m
 
 ## Repository Layout
 
-The layout of the repo is pretty standard for Ansible.  The main point is in how the layout is used.  For example, Ansible allows one to specify the inventory to be used.  In this repo, we have two different inventories: test and prod. A couple of key points to remember about Ansible is that an `inventory` contains both the list of devices to automation and the key/value pairs (a.k.a Source of Truth) that defines how those devices are configured.  
+The layout of the repo is pretty standard for Ansible.  The main point is in how the layout is used.  For example, Ansible allows one to specify the inventory to be used.  In this repo, we have two different inventories: test and prod. A couple of key points to remember about Ansible is that an `inventory` contains both the list of devices to automate and the key/value pairs (a.k.a Source of Truth) that defines how those devices are configured.  
 
 ```
 .
@@ -31,7 +31,7 @@ The layout of the repo is pretty standard for Ansible.  The main point is in how
     └── network-dmvpn           |
 ```
 
-Playbooks should embody the intent, architecture, and policy of a particular network.  It should *not* contain references to specific nodes nor the specific values that are used to configure these nodes.
+Playbooks should embody the intent, architecture, and policy of a particular network.  It should *not* contain references to specific nodes nor the specific values that are used to configure these nodes.  That is:
 
 **Implementation (Inventory) + Definition (Playbooks}) = Deployment**
 
@@ -49,7 +49,9 @@ Unit testing in generally done in Ansible by testing roles.  An Ansible [Roles](
 
 Integration testing is done when we integrate the Roles (i.e. the units) into the playbooks that setup the overall system.
 
-## Requirements
+## Test network
+
+[wan-testbed](https://raw.githubusercontent.com/ismc/devnet-2076_clus2018/master/wan-testbed.png)
 
 ## Usage
 
