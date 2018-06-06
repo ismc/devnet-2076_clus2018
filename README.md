@@ -4,7 +4,7 @@ This repo contains the material used in the DEVNET-2076 session at Cisco Live US
 
 ## Background
 
-Ansible is simply a tool that automates the individual tasks that are normally manually performed by a network operations teams. Ansible has no innate intelligence for determining a good task from a bad task, so it will happily and efficiently create or destroy depending on the inventory and playbooks fed to it. For this reason, successful network-automation at scale should be integrated into a DevOps process.  This session outlines a prototype Devops pipeline that can be used for network automation.
+Ansible is simply a tool that automates the individual tasks that are normally manually performed by a network operations teams. Ansible has no innate intelligence for determining a good task from a bad task, so it will happily and efficiently create or destroy depending on the inventory and playbooks fed to it.  Also, IaC network automation systems are gnerally made up of components from several different sources.  Each of these sources are separately developed and versions.  A change in one of these components can perturb the entire system.  For these reasons, successful network-automation at scale should be integrated into a DevOps process.  This session outlines a prototype Devops pipeline that can be used for network automation.
 
 ## DevOps Infrastructure
 
