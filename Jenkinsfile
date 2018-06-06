@@ -33,7 +33,7 @@ pipeline {
                     /* userRemoteConfigs: scm.userRemoteConfigs */
                     userRemoteConfigs: [[credentialsId: 'scarter-jenkins_key', url: 'git@github.com:ismc/devnet-2076_clus2018.git']]
                 ])
-                dir ('test') {
+                dir ('inventory') {
                     checkout([$class: 'GitSCM',
                         branches: [[name: '*/master']],
                         doGenerateSubmoduleConfigurations: false,
