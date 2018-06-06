@@ -4,6 +4,8 @@
     - name: Find the Hub Router
       set_fact:
         hub_router: "{{ groups.hub_routers[0] }}"
+      delegate_to: localhost
+      run_once: yes
 
     - include_role:
         name: network-dmvpn
