@@ -71,7 +71,7 @@ pipeline {
                 script {
                     try {
                         echo 'Updating Inventory...'
-                        dir('inventory') {
+                        dir("${env.WORKSPACE}/inventory/test") {
                             sshagent (credentials: ['scarter-jenkins_key']) {
                                 sh 'git add *'
                                 sh 'git commit -am "Updated inventory on re-build"'
