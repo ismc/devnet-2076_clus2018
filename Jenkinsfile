@@ -16,6 +16,7 @@ pipeline {
     }
     stages {
         stage('Checkout Code') {
+            properties([[$class: 'HudsonNotificationProperty', endpoints: [[buildNotes: 'Starting Build', urlInfo: [urlOrId: ' http://cisco-spark-integration-management-ext.cloudhub.io/api/hooks/8fde6043-69b6-11e8-bf37-06c25f4e7996', urlType: 'PUBLIC']]]]])
             steps {
                 checkout([
                     $class: 'GitSCM',
@@ -30,15 +31,18 @@ pipeline {
                     /* userRemoteConfigs: scm.userRemoteConfigs */
                     userRemoteConfigs: [[credentialsId: 'scarter-jenkins_key', url: 'git@github.com:ismc/devnet-2076_clus2018.git']]
                 ])
-                checkout([$class: 'GitSCM',
-                    branches: [[name: '*/master']],
-                    doGenerateSubmoduleConfigurations: false,
-                    extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'inventory']],
-                    submoduleCfg: [],
-                    userRemoteConfigs: [[credentialsId: 'scarter-jenkins_key', url: 'git@github.com:ismc/inventory-test.git']]
-                ])
+                directory ('test') {
+                    checkout([$class: 'GitSCM',
+                        branches: [[name: '*/master']],
+                        doGenerateSubmoduleConfigurations: false,
+                        extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'test']],
+                        submoduleCfg: [],
+                        userRemoteConfigs: [[credentialsId: 'scarter-jenkins_key', url: 'git@github.com:ismc/inventory-test.git']]
+                    ])
+                }
             }
         }
+/*
         stage('Destroy Testbed') {
             steps {
                 script {
@@ -46,7 +50,7 @@ pipeline {
                         echo 'Destroying Cloud...'
                         retry(3) {
                             withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'Ansible (scarter)']]) {
-                                ansiblePlaybook colorized: true, extras: "-e cloud_model=wan-testbed -e cloud_inventory_dir=${env.ANSIBLE_INVENTORY_DIR} -e cloud_instance=wan-testbed -e cloud_project=scarter -e cloud_key_name=scarter-jenkins", playbook: 'destroy-cloud.yml'
+                                ansiblePlaybook colorized: true, playbook: 'destroy-testbed.yml'
                             }
                         }
                     } catch (e) {
@@ -55,11 +59,12 @@ pipeline {
                 }
             }
         }
+*/
         stage('Build Testbed') {
             steps {
                 echo 'Building Cloud...'
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'Ansible (scarter)']]) {
-                  ansiblePlaybook colorized: true, extras: "-e cloud_model=wan-testbed -e cloud_inventory_dir=${env.ANSIBLE_INVENTORY_DIR} -e cloud_instance=wan-testbed -e cloud_project=scarter -e cloud_key_name=scarter-jenkins", playbook: 'build-cloud.yml'
+                  ansiblePlaybook colorized: true, playbook: 'build-testbed.yml'
                 }
                 script {
                     try {
@@ -95,11 +100,17 @@ pipeline {
                 ansiblePlaybook credentialsId: 'scarter-jenkins_key', colorized: true, disableHostKeyChecking: true, inventory: "${env.ANSIBLE_INVENTORY_DIR}/test/wan-testbed.yml", playbook: 'network-rollback.yml'
             }
         }
-        stage('Clean Workspace') {
-            steps {
-                echo 'Cleaning Workspace...'
-                deleteDir()
-            }
+    }
+    post {
+        success {
+            properties([[$class: 'HudsonNotificationProperty', endpoints: [[buildNotes: 'Build Passed', urlInfo: [urlOrId: ' http://cisco-spark-integration-management-ext.cloudhub.io/api/hooks/8fde6043-69b6-11e8-bf37-06c25f4e7996', urlType: 'PUBLIC']]]]])
+        }
+        failure {
+            properties([[$class: 'HudsonNotificationProperty', endpoints: [[buildNotes: 'Build Failed', urlInfo: [urlOrId: ' http://cisco-spark-integration-management-ext.cloudhub.io/api/hooks/8fde6043-69b6-11e8-bf37-06c25f4e7996', urlType: 'PUBLIC']]]]])
+        }
+        always {
+            echo 'Cleaning Workspace...'
+            deleteDir()
         }
     }
 }
