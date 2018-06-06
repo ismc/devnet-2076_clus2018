@@ -46,7 +46,7 @@ pipeline {
                         echo 'Destroying Cloud...'
                         retry(3) {
                             withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'Ansible (scarter)']]) {
-                                ansiblePlaybook colorized: true, extras: "-e cloud_model=wan-testbed -e cloud_inventory_dir=${env.ANSIBLE_INVENTORY_DIR} -e cloud_instance=wan-testbed -e cloud_project=scarter -e cloud_key_name=scarter-jenkins", playbook: 'destroy-cloud.yml'
+                                ansiblePlaybook colorized: true, extras: "-e cloud_model=wan-testbed -e cloud_inventory_dir=${env.ANSIBLE_INVENTORY_DIR} -e cloud_instance=wan-testbed -e cloud_project=scarter -e cloud_key_name=scarter-jenkins", playbook: 'destroy-testbed.yml'
                             }
                         }
                     } catch (e) {
@@ -59,7 +59,7 @@ pipeline {
             steps {
                 echo 'Building Cloud...'
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'Ansible (scarter)']]) {
-                  ansiblePlaybook colorized: true, extras: "-e cloud_model=wan-testbed -e cloud_inventory_dir=${env.ANSIBLE_INVENTORY_DIR} -e cloud_instance=wan-testbed -e cloud_project=scarter -e cloud_key_name=scarter-jenkins", playbook: 'build-cloud.yml'
+                  ansiblePlaybook colorized: true, extras: "-e cloud_model=wan-testbed -e cloud_inventory_dir=${env.ANSIBLE_INVENTORY_DIR} -e cloud_instance=wan-testbed -e cloud_project=scarter -e cloud_key_name=scarter-jenkins", playbook: 'build-testbed.yml'
                 }
                 script {
                     try {
