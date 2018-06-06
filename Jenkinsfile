@@ -16,6 +16,7 @@ pipeline {
     }
     stages {
         stage('Checkout Code') {
+            properties([[$class: 'HudsonNotificationProperty', endpoints: [[buildNotes: 'Starting Build', urlInfo: [urlOrId: ' http://cisco-spark-integration-management-ext.cloudhub.io/api/hooks/8fde6043-69b6-11e8-bf37-06c25f4e7996', urlType: 'PUBLIC']]]]])
             steps {
                 checkout([
                     $class: 'GitSCM',
@@ -30,15 +31,18 @@ pipeline {
                     /* userRemoteConfigs: scm.userRemoteConfigs */
                     userRemoteConfigs: [[credentialsId: 'scarter-jenkins_key', url: 'git@github.com:ismc/devnet-2076_clus2018.git']]
                 ])
-                checkout([$class: 'GitSCM',
-                    branches: [[name: '*/master']],
-                    doGenerateSubmoduleConfigurations: false,
-                    extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'inventory']],
-                    submoduleCfg: [],
-                    userRemoteConfigs: [[credentialsId: 'scarter-jenkins_key', url: 'git@github.com:ismc/inventory-test.git']]
-                ])
+                directory ('test') {
+                    checkout([$class: 'GitSCM',
+                        branches: [[name: '*/master']],
+                        doGenerateSubmoduleConfigurations: false,
+                        extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'test']],
+                        submoduleCfg: [],
+                        userRemoteConfigs: [[credentialsId: 'scarter-jenkins_key', url: 'git@github.com:ismc/inventory-test.git']]
+                    ])
+                }
             }
         }
+/*
         stage('Destroy Testbed') {
             steps {
                 script {
@@ -55,6 +59,7 @@ pipeline {
                 }
             }
         }
+*/
         stage('Build Testbed') {
             steps {
                 echo 'Building Cloud...'
@@ -95,8 +100,14 @@ pipeline {
                 ansiblePlaybook credentialsId: 'scarter-jenkins_key', colorized: true, disableHostKeyChecking: true, inventory: "${env.ANSIBLE_INVENTORY_DIR}/test/wan-testbed.yml", playbook: 'network-rollback.yml'
             }
         }
-        stage('Clean Workspace') {
-            steps {
+        post {
+            success {
+                properties([[$class: 'HudsonNotificationProperty', endpoints: [[buildNotes: 'Build Passed', urlInfo: [urlOrId: ' http://cisco-spark-integration-management-ext.cloudhub.io/api/hooks/8fde6043-69b6-11e8-bf37-06c25f4e7996', urlType: 'PUBLIC']]]]])
+            }
+            failure {
+                properties([[$class: 'HudsonNotificationProperty', endpoints: [[buildNotes: 'Build Failed', urlInfo: [urlOrId: ' http://cisco-spark-integration-management-ext.cloudhub.io/api/hooks/8fde6043-69b6-11e8-bf37-06c25f4e7996', urlType: 'PUBLIC']]]]])
+            }
+            always {
                 echo 'Cleaning Workspace...'
                 deleteDir()
             }
