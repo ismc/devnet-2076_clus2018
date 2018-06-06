@@ -6,7 +6,8 @@ This repo contains the material used in the DEVNET-2076 session at Cisco Live US
 
 Ansible is simply a tool that automates the individual tasks that are normally manually performed by a network operations teams. Ansible has no innate intelligence for determining a good task from a bad task, so it will happily and efficiently create or destroy depending on the inventory and playbooks fed to it. For this reason, successful network-automation at scale should be integrated into a DevOps process.
 
-## Repository Layout
+## Testing
+#### Repository Layout
 
 The layout of the repo is pretty standard for Ansible.  The main point is in how the layout is used.  For example, Ansible allows one to specify the inventory to be used.  In this repo, we have two different inventories: test and prod. A couple of key points to remember about Ansible is that an `inventory` contains both the list of devices to automate and the key/value pairs (a.k.a Source of Truth) that defines how those devices are configured.  
 
@@ -33,11 +34,9 @@ The layout of the repo is pretty standard for Ansible.  The main point is in how
 
 Playbooks should embody the intent, architecture, and policy of a particular network.  It should *not* contain references to specific nodes nor the specific values that are used to configure these nodes.  That is:
 
-**Implementation (Inventory) + Definition (Playbooks}) = Deployment**
+#### Implementation (Inventory) + Definition (Playbooks}) = Deployment
 
 This is the key capability that we need to test playbooks.  We architect the playbook to meet the needs of our production network.  We then create a testbed that mimics the key aspects of the production network, but at a smaller scale.  When the inventory for the test network is fed into the playbooks, it yields the test network.  This obviously gives us the ability to catch simple syntactical errors, but it also give the ability to test the architecture defined in the playbooks on something other than the production network.
-
-For this session, we use the example of a hub/spoke network that uses DMVPN as an overlay because it is regular (i.e. easy to automate) and easy to simulate.
 
 ## Testing Methodologies: Unit vs. Integration
 
@@ -47,13 +46,30 @@ Unit testing in generally done in Ansible by testing roles.  An Ansible [Roles](
 
 #### Integration Testing
 
-Integration testing is done when we integrate the Roles (i.e. the units) into the playbooks that setup the overall system.
+Integration testing is done when we integrate the Roles (i.e. the units) into the playbooks that setup the overall system.  For example, for DMVPN to work, the interfaces need to be properly configured.  This is a simple example, but there are several different systems of the network device (e.g. AAA, port configuration, routing protocols, etc.) are configured by different playbooks and they could all be tested together whenever possible.
+
+## Testing Infrastructure
+
+Since it is desirable to avoid testing on a production network whenever possible, a testbed is needed.  Generally, there are 2 options available:
+
+* Physical: A representative, but scaled down version of the production network.
+* Virtual:  This can take the form of a proper emulator like [Cisco VIRL](http://virl.cisco.com/) or by using VNFs on a virtualized infrastructure (e.g. OpenStack, VMware) or public cloud (e.g. AWS, Azure, GCE).
+
+For this session, we use the example of a hub/spoke network that uses DMVPN as an overlay because it is regular (i.e. easy to automate) and easy to simulate.  In this case, our physical/production network if comprised of Cisco ISRs running IOS-XE.  Since Cisco IOS-XE is available in the form of the Cisco Cloud Service Router VNFs, we can create an accurate testbed using a public cloud.
 
 ## Test network
+
+Our DMVPN testbed consists of 3 sites, each a VPC in AWS.  Each site have a Cisco CSR as its site router with and inside and outside interface.  Each inside network has a single host for connectivity testing:
 
 ![wan-testbed](wan-testbed.png)
 
 ## Usage
+
+Since this repository used submodules, it has to be checked out recursivley:
+
+```
+https://github.com/ismc/devnet-2076_clus2018.git --recursive
+```
 
 ## License
 
