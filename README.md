@@ -177,3 +177,4 @@ GPL-3
 ## Author Information
 * Steven Carter
 * Chris Hocker
+* Jason King
