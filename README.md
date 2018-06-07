@@ -4,13 +4,13 @@ This repo contains the material used in the DEVNET-2076 session at Cisco Live US
 
 ## Background
 
-Ansible is simply a tool that automates the individual tasks that are normally manually performed by a network operations teams. Ansible has no innate intelligence for determining a good task from a bad task, so it will happily and efficiently create or destroy depending on the inventory and playbooks fed to it.  Also, IaC network automation systems are gnerally made up of components from several different sources.  Each of these sources are separately developed and versions.  A change in one of these components can perturb the entire system.  For these reasons, successful network-automation at scale should be integrated into a DevOps process.  This session outlines a prototype Devops pipeline that can be used for network automation.
+Ansible is simply a tool that automates the individual tasks that are normally manually performed by a network operations teams. Ansible has no innate intelligence for determining a good task from a bad task, so it will happily and efficiently create or destroy depending on the inventory and playbooks fed to it.  Also, IaC network automation systems are generally made up of components from several different sources.  Each of these sources are separately developed and versioned.  A change in one of these components can perturb the entire system.  For these reasons, successful network-automation at scale should be integrated into a DevOps process.  This session outlines a prototype Devops pipeline that can be used for network automation.
 
 ## DevOps Infrastructure
 
 Our DevOps infrastructure consists of 3 components:
 
-* Source Control: GitHib
+* Source Control: GitHub
 * Test Engine: Jenkins
 * Automation Orchestrator: Ansible Tower
 * Collaboration Platform: Cisco WebEx Teams
@@ -101,7 +101,7 @@ Our DMVPN testbed consists of 3 sites, each a VPC in AWS.  Each site have a Cisc
 
 ## Usage
 
-Since this is a complex system composes of several parts, all of those parts must be in places an configured to completely reproduce this work.  However, Since this repository used submodules, it has to be checked out recursivley:
+Since this is a complex system composes of several parts, all of those parts must be in place and configured to completely reproduce this work.  However, Since this repository used submodules, it has to be checked out recursivley:
 
 ```
 https://github.com/ismc/devnet-2076_clus2018.git --recursive
@@ -150,6 +150,25 @@ To destroy the testbed:
 ```
 ansible-playbook desroy-testbed.yml
 ```
+## WebEx Teams Integrations
+
+ChatOps functions are achieved using WebEx Teams.  The WebEx Teams app provides many integrations with various DevOps tools, including both GitHub and Jenkins.  These can be enabled for an arbitrary space via the WebEx Teams App Hub.
+
+### Jenkins
+In order to enable the Jenkins integration, you need to do the following:
+
+* Visit the WebEx Teams App Hub and enable the Jenkins integration for your space and copy the created webhook URL
+* Install the Notification plugin on your Jenkins server
+* Add an entry in your Jenkinsfile to call the WebEx Teams webhook you copied earlier for all notifications
+
+The required entry in the Jenkinsfile can be found by using the "Pipeline Syntax" functionality in Jenkins.  Go to the pipeline page in the Jenkins server and select Pipeline Syntax, then "properties" from the drop down list.  In here you can insert the webhook URL and generate the needed script code for your Jenkinsfile.
+
+The properties section should look something like:
+```
+properties([[$class: 'HudsonNotificationProperty', endpoints: [[buildNotes: '', urlInfo: [urlOrId: 'http://cisco-spark-integration-management-ext.cloudhub.io/api/hooks/8fde6043-69b6-11e8-bf37-0123456789ef', urlType: 'PUBLIC']]]]]) 
+```
+
+### GitHub
 
 ## License
 
