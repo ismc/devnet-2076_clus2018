@@ -5,7 +5,7 @@
   vars:
     - cloud_model: wan-testbed
     - cloud_project: scarter
-    - cloud_inventory_dir: "{{ playbook_dir }}/inventory/test"
+    - cloud_inventory_dir: "{{ playbook_dir }}/inventory"
     - cloud_key_name: scarter-jenkins
   tasks:
     - assert:
