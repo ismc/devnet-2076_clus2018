@@ -1,4 +1,4 @@
-# DEVNET-2076: Cisco Live US 2018
+importantbifurcation# DEVNET-2076: Cisco Live US 2018
 
 This repo contains the material used in the DEVNET-2076 session at Cisco Live US 2018.  It is a scaled down version of what might be used in a real environment that illustrates one possible DevOps pipeline for networks with Ansible.  
 
@@ -50,7 +50,9 @@ What does that look like?
 
 **In a strict IaC paradign, _EVERY_ change goes through this process.**
 
-## Outcomes: Automated Humans vs. Automate Business
+## Outcomes: Automated Humans vs. Automated Business
+
+### Automating Humans
 
 Let us pause for a moment to ponder what we are trying to achieve.  If we _just_ want a human to be able to perform an operation faster by automating all tasks with IaC within a NetDevOps workflow, then we might not _actually_ achieve that.  Why is this?  Automation is geared at deploying single or multiple changes across a large number of devices.  
 
@@ -69,14 +71,24 @@ This overhead is not necessarily a bad thing, even for small changes.  There are
 
 We should then focus more on automating business processes and less on _just_ automating humans.  
 
-### Implementation (Inventory) + Definition (Playbooks) = Deployment
+### Source of Truth (SoT)
 
+One area in which Devops for application development differs from DevOps for network operation is the Source of Truth.  The Source of Truth of a network contains all of the values that make a network _that_ network.  In its simplest form, those values are things like hostname, NTP servers, users, AAA servers, etc.  These values are relatively few in number and are used across all of the devices.  The problem comes with values that define thing like interface configuration, ACLs, and load-balancing rules.  Even for a mid-size network, the number of values that define the configuration of that network could be over 100,000s.  Keeping 100,000+ values in flat files in a code repository can be at best painful and at worst untenable.
 
-### How do we make changes
-* Faster Human
-* API-Driven
+This is why, for any meaningful deployments, the SoT is kept and managed separately from the code that references it.  This bifurcation helps address both the overhead problem and, as we'll see later, testing.
 
-### What kind of changes can we check.
+### Implementation (SoT) + Definition (Code) = Deployment
+
+When we decouple the SoT from the code, it is the code that is strictly managed through the full NetDevOps workflow since changes to it affect the architecture and policy of the entire network which justifies the associated rigor and overhead.
+
+The SoT is then managed separately.  This is not to say that non of the SoT is in code/file form.  Much of the common values that define constants across the network and have a large collateral affect (e.g. NTP servers, AAA servers, SNMP Community Strings) can still be managed with code.  But the values associated with the day-to-day CRUD generally live in an external database or CMDB.
+
+### Automating Business Processes: API-Driven Automation
+
+This SoT/Code bifurcation also enables the automation of the business processes that were likely the original goal of automation in the first place.  When the SoT is external to the automation infrastructure, those values that comprise it can be changed externally, then feed into the process.  For example, a user that wants to add an exception for a server can go to a self service portal to request that exception.  That request can then go through the review process to make sure that it is align with business policies and appropriately approved.  The SoT can be updated with this exception and the portal can call an API to tell the automation infrastructure to push out that change.  This accomplishes two equally important objectives:
+
+1. To take the network team out of the path of the CRUD
+2. To allow the network team to define and put checks around how the changes to the network are performed.
 
 ## DevOps Infrastructure
 
@@ -148,7 +160,7 @@ GitHub's [branch protection](https://help.github.com/articles/about-protected-br
 
 ## Test Automation: Jenkins
 
-
+### What kind of changes can we check.
 
 ### Testing Methodologies: Unit vs. Integration
 
