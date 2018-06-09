@@ -33,18 +33,15 @@ pipeline {
                     /* userRemoteConfigs: scm.userRemoteConfigs */
                     userRemoteConfigs: [[credentialsId: 'scarter-jenkins_key', url: 'git@github.com:ismc/devnet-2076_clus2018.git']]
                 ])
-                dir ('inventory') {
-                    checkout([$class: 'GitSCM',
-                        branches: [[name: '*/master']],
-                        doGenerateSubmoduleConfigurations: false,
-                        extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'test']],
-                        submoduleCfg: [],
-                        userRemoteConfigs: [[credentialsId: 'scarter-jenkins_key', url: 'git@github.com:ismc/inventory-test.git']]
-                    ])
-                }
+                checkout([$class: 'GitSCM',
+                    branches: [[name: '*/master']],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'inventory']],
+                    submoduleCfg: [],
+                    userRemoteConfigs: [[credentialsId: 'scarter-jenkins_key', url: 'git@github.com:ismc/inventory-test.git']]
+                ])
             }
         }
-/*
         stage('Destroy Testbed') {
             steps {
                 script {
@@ -61,7 +58,6 @@ pipeline {
                 }
             }
         }
-*/
         stage('Build Testbed') {
             steps {
                 echo 'Building Cloud...'
@@ -71,12 +67,10 @@ pipeline {
                 script {
                     try {
                         echo 'Updating Inventory...'
-                        dir('inventory') {
-                            sshagent (credentials: ['scarter-jenkins_key']) {
-                                sh 'git add *'
-                                sh 'git commit -am "Updated inventory on re-build"'
-                                sh 'git push origin HEAD:master --force'
-                            }
+                        sshagent (credentials: ['scarter-jenkins_key']) {
+                            sh 'git add *'
+                            sh 'git commit -am "Updated inventory on re-build"'
+                            sh 'git push origin HEAD:master --force'
                         }
                     } catch (e) {
                             echo 'Unable to commit inventory'
@@ -87,19 +81,19 @@ pipeline {
         stage('Run Tests') {
             steps {
                 echo 'Running network-system.yml...'
-                ansiblePlaybook credentialsId: 'scarter-jenkins_key', colorized: true, disableHostKeyChecking: true, inventory: "${env.ANSIBLE_INVENTORY_DIR}/test/wan-testbed.yml", playbook: 'network-system.yml'
+                ansiblePlaybook credentialsId: 'scarter-jenkins_key', colorized: true, disableHostKeyChecking: true, inventory: "${env.ANSIBLE_INVENTORY_DIR}/wan-testbed.yml", playbook: 'network-system.yml'
 
                 echo 'Running network-checkpoint.yml...'
-                ansiblePlaybook credentialsId: 'scarter-jenkins_key', colorized: true, disableHostKeyChecking: true, inventory: "${env.ANSIBLE_INVENTORY_DIR}/test/wan-testbed.yml", playbook: 'network-checkpoint.yml'
+                ansiblePlaybook credentialsId: 'scarter-jenkins_key', colorized: true, disableHostKeyChecking: true, inventory: "${env.ANSIBLE_INVENTORY_DIR}/wan-testbed.yml", playbook: 'network-checkpoint.yml'
 
                 echo 'Running network-dmvpn.yml...'
-                ansiblePlaybook credentialsId: 'scarter-jenkins_key', colorized: true, disableHostKeyChecking: true, inventory: "${env.ANSIBLE_INVENTORY_DIR}/test/wan-testbed.yml", playbook: 'network-dmvpn.yml'
+                ansiblePlaybook credentialsId: 'scarter-jenkins_key', colorized: true, disableHostKeyChecking: true, inventory: "${env.ANSIBLE_INVENTORY_DIR}/wan-testbed.yml", playbook: 'network-dmvpn.yml'
 
                 echo 'Running network-dmvpn-check.yml...'
-                ansiblePlaybook credentialsId: 'scarter-jenkins_key', colorized: true, disableHostKeyChecking: true, inventory: "${env.ANSIBLE_INVENTORY_DIR}/test/wan-testbed.yml", playbook: 'network-dmvpn-check.yml'
+                ansiblePlaybook credentialsId: 'scarter-jenkins_key', colorized: true, disableHostKeyChecking: true, inventory: "${env.ANSIBLE_INVENTORY_DIR}/wan-testbed.yml", playbook: 'network-dmvpn-check.yml'
 
                 echo 'Running network-rollback.yml...'
-                ansiblePlaybook credentialsId: 'scarter-jenkins_key', colorized: true, disableHostKeyChecking: true, inventory: "${env.ANSIBLE_INVENTORY_DIR}/test/wan-testbed.yml", playbook: 'network-rollback.yml'
+                ansiblePlaybook credentialsId: 'scarter-jenkins_key', colorized: true, disableHostKeyChecking: true, inventory: "${env.ANSIBLE_INVENTORY_DIR}/wan-testbed.yml", playbook: 'network-rollback.yml'
             }
         }
         stage('Clean Workspace') {
