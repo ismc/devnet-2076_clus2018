@@ -94,7 +94,7 @@ This SoT/Code bifurcation also enables the automation of the business processes 
 
 ## DevOps Infrastructure
 
-For this session, we present an infrastructure to implement a full NetDevOps workflow in a way that is representative to what most organization deploy.  It is predominately aimed at the Code part of the equation, although we demonstrate the common values that could be included in code as well as discuss the API that can be leveraged by an external SoT.
+For this session, we present an infrastructure to implement a full NetDevOps workflow in a way that is representative to what many organizations deploy.  It is, in fact, a real-world deployment in that it is the "Dev" part of a set of companion sessions that we are delivering at CLUS 2018.  The other Session, BRK-2023: Building Hybrid Clouds in Amazon Web Services with the CSR 1000v, includes a demo for deploying CSR-based cloud nodes in public clouds and connecting them with a DMPVN overlay.  That demo uses the production artifacts created in this session.
 
 Our NetDevOps workflow is facilitated by the following infrastructure:
 
@@ -164,7 +164,9 @@ For this demonstration, we protect the `master` branch and develop on the `devel
 Jenkins is a self-contained, open source automation server which can be used to automate all sorts of tasks related to building, testing, and delivering
 or deploying software.
 
-#### What kind of changes can we check.
+#### What kind of changes can we test?
+
+To use somewhat circular reasoning, we can test anything for which we can build a test.  Testing the syntactical correctness is easy.  We can simply run the playbooks against anything and they will either fail or not.  Better yet, we can use Ansible's built-in syntactical checker.  To test the functionality of the code, we perform a combination of Unit and Integration testing.
 
 #### Testing Methodologies: Unit vs. Integration
 
@@ -191,10 +193,13 @@ Our DMVPN testbed consists of 3 sites, each a VPC in AWS.  Each site have a Cisc
 
 ![wan-testbed](wan-testbed.png)
 
-### Test Network Locking
 ### Production Deployment: Ansible Tower
-### Collaboration Platform: Cisco WebEx Teams
 
+Ansible Tower as a means for pushing out production artifacts is important for 2 reasons:
+
+* Controlled release of automation.  
+
+### Collaboration Platform: Cisco WebEx Teams
 
 ChatOps functions are achieved using WebEx Teams. The WebEx Teams app provides many integrations with various DevOps tools, including both GitHub and Jenkins. These can be enabled for an arbitrary space via the WebEx Teams App Hub.
 
