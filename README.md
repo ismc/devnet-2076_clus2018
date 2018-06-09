@@ -75,6 +75,8 @@ We should then focus more on automating business processes and less on _just_ au
 
 One area in which Devops for application development differs from DevOps for network operation is the Source of Truth.  The Source of Truth of a network contains all of the values that make a network _that_ network.  In its simplest form, those values are things like hostname, NTP servers, users, AAA servers, etc.  These values are relatively few in number and are used across all of the devices.  The problem comes with values that define thing like interface configuration, ACLs, and load-balancing rules.  Even for a mid-size network, the number of values that define the configuration of that network could be over 100,000s.  Keeping 100,000+ values in flat files in a code repository can be at best painful and at worst untenable.
 
+Another use case in which the separation of the SoT from the Code is critical is Cloud and other virtualized platforms.  On these virtualized platforms, virtual routers, firewalls, load-balancers, etc. are being dynamically created and destroyed to accomodate customer requests and/or user workloads.  To manually copy this inventory data from their native platforms (e.g. AWS) would fight against the agile posture that we are trying to achieve with automation.  This can better be accommodated by pulling the SoT dynamically from those platforms.
+
 This is why, for any meaningful deployments, the SoT is kept and managed separately from the code that references it.  This bifurcation helps address both the overhead problem and, as we'll see later, testing.
 
 ### Implementation (SoT) + Definition (Code) = Deployment
@@ -183,10 +185,6 @@ Since it is desirable to avoid testing on a production network whenever possible
 
 For this session, we use the example of a hub/spoke network that uses DMVPN as an overlay because it is regular (i.e. easy to automate) and easy to simulate.  In this case, our physical/production network if comprised of Cisco ISRs running IOS-XE.  Since Cisco IOS-XE is available in the form of the Cisco Cloud Service Router VNFs, we can create an accurate testbed using a public cloud.
 
-### Branch Protection
-
-With any IaC paradigm, the code _is_ the infrastructure, so you should protect it as such.
-
 ### Test network
 
 Our DMVPN testbed consists of 3 sites, each a VPC in AWS.  Each site have a Cisco CSR as its site router with and inside and outside interface.  Each inside network has a single host for connectivity testing:
@@ -283,7 +281,7 @@ The required entry in the Jenkinsfile can be found by using the "Pipeline Syntax
 
 The properties section should look something like:
 ```
-properties([[$class: 'HudsonNotificationProperty', endpoints: [[buildNotes: '', urlInfo: [urlOrId: 'http://cisco-spark-integration-management-ext.cloudhub.io/api/hooks/8fde6043-69b6-11e8-bf37-0123456789ef', urlType: 'PUBLIC']]]]]) 
+properties([[$class: 'HudsonNotificationProperty', endpoints: [[buildNotes: '', urlInfo: [urlOrId: 'http://cisco-spark-integration-management-ext.cloudhub.io/api/hooks/8fde6043-69b6-11e8-bf37-0123456789ef', urlType: 'PUBLIC']]]]])
 ```
 
 ### GitHub
