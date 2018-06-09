@@ -151,7 +151,7 @@ In this example, we are using 3 different types of repositories:
   * [network-backup](https://github.com/ismc/ansible-network-backup.git): An Ansible Role that provides backup, checkpoint, and rollback for network devices.
   * [cloudbuilder](https://github.com/ismc/ansible-cloudbuilder.git): An Ansible Role to build a cloud-agnostic model in a Public Cloud.
 * **Inventory Repositories**: These repositories contain the inventories that will be used by a particular project.
-* **Project Repository**:  This is the top level repository that contains all of the Ansible Playbooks, Roles, and Inventory that is needed by a particular project.  It is representative of the kind of structure you could use in a production environment.
+* **Project Repository**:  This is the top level repository that contains all of the Ansible Playbooks, Roles, and Inventory used in our [ARCBRK-2023](https://github.com/ismc/brkarc-2023_clus2018) session.  It is representative of the kind of structure you could use in a production environment.
 
 ### Branch protection
 
@@ -197,81 +197,27 @@ Our DMVPN testbed consists of 3 sites, each a VPC in AWS.  Each site have a Cisc
 
 Ansible Tower as a means for pushing out production artifacts is important for 2 reasons:
 
-* Controlled release of automation.  
+**Controlled release of automation**:  If you go through all of the work of making sure that your code is correct, you also want to make sure that it is run on the right devices, by the right people, at the right times.
+
+**API-Driven Automation**: In order for the network team to get out of the CRUD, we need to allows access to other application in the enterprise.  Most often, this external application is a self-service portal like Service Now.  Generally, these self-service portals are also Configuration Data based that can act as part of the SoT.
+
+Putting all of this together, we get the workflow depicted in the following diagram.  The left side of the diagram shows the "Dev" part DevOps that we have already covered.  The right side of the picture is where the "Ops" comes in and one way that it can be used in automating a business process.  In this case, we use Ansible Tower to push out the production "artifacts".  These artifacts can be push out in one of three ways:
+
+* **Timed Running**: This is a regular running of playbooks to detect configuration drift or to push out new services.
+* **Operator UI**: Ansible Tower provides a more approachable interface to the automation infrastructure that can enforce roles-based access, manage credentials, and log activity.
+* **API-Driven Automation**: The last, and potential most powerful form of leveraging the production playbooks created in the Dev process is the API.
+
+  1. User requests new service (e.g. A new public cloud node)
+  2. After going through the approval process, Service Now calls the Ansible Tower API to create the new service
+  3. Ansible Tower runs the playbook, feeding it the appropriate inventory and SoT information to create the service.
+  4. Ansible Tower calls the Service Now API to append information to the request and close the ticket, informing the user
+  5. The service is now available to the user for consumption.
+
+  This workflow can be used to decommission the service as well.
+
+![automated_enterprise](automated_enterprise.png)
 
 ### Collaboration Platform: Cisco WebEx Teams
-
-ChatOps functions are achieved using WebEx Teams. The WebEx Teams app provides many integrations with various DevOps tools, including both GitHub and Jenkins. These can be enabled for an arbitrary space via the WebEx Teams App Hub.
-
-#### WebEx Teams Jenkins integration
-
-
-In order to enable the Jenkins integration, you need to do the following:
-
-* Visit the WebEx Teams App Hub and enable the Jenkins integration for your space and copy the created webhook URL
-* Install the Notification plugin on your Jenkins server
-* Add an entry in your Jenkinsfile to call the WebEx Teams webhook you copied earlier for all notifications
-
-The required entry in the Jenkinsfile can be found by using the "Pipeline Syntax" functionality in Jenkins. Go to the pipeline page in the Jenkins server and select Pipeline Syntax, then "properties" from the drop down list. In here you can insert the webhook URL and generate the needed script code for your Jenkinsfile.
-
-The properties section should look something like:
-
-```
-properties([[$class: 'HudsonNotificationProperty', endpoints: [[buildNotes: '', urlInfo: [urlOrId: 'http://cisco-spark-integration-management-ext.cloudhub.io/api/hooks/8fde6043-69b6-11e8-bf37-0123456789ef', urlType: 'PUBLIC']]]]])
-```
-
-## Repository Usage
-
-Since this is a complex system composes of several parts, all of those parts must be in place and configured to completely reproduce this work.  However, Since this repository used submodules, it has to be checked out recursivley:
-
-```
-https://github.com/ismc/devnet-2076_clus2018.git --recursive
-```
-
-To build the testbed:
-
-```
-ansible-playbook build-testbed.yml
-```
-
-To run the DMVPN Integration tests:
-
-* Set the baseline system and interface configuration:
-
-```
-    ansible-playbook -i inventory/test network-system.yml
-```
-
-* (Optional) Checkpoint the routers after the initial configuration and before the DMVPN deployment.
-
-```
-    ansible-playbook -i inventory/test network-checkpoint.yml
-```
-
-* Deploy the DMVPN overlay:
-
-```
-    ansible-playbook -i inventory/test network-dmvpn.yml
-```
-
-* Check to make sure that DMVPN overlay as properly deployed
-
-```
-    ansible-playbook -i inventory/test network-dmvpn-check.yml
-```
-
-* (Optional) Rollback the router configuration to the state before the DMVPN overlay was deployed.
-
-```
-    ansible-playbook -i inventory/test network-rollback.yml
-```
-
-To destroy the testbed:
-
-```
-ansible-playbook desroy-testbed.yml
-```
-## WebEx Teams Integrations
 
 ChatOps functions are achieved using WebEx Teams.  The WebEx Teams app provides many integrations with various DevOps tools, including both GitHub and Jenkins.  These can be enabled for an arbitrary space via the WebEx Teams App Hub.
 
@@ -288,8 +234,6 @@ The properties section should look something like:
 ```
 properties([[$class: 'HudsonNotificationProperty', endpoints: [[buildNotes: '', urlInfo: [urlOrId: 'http://cisco-spark-integration-management-ext.cloudhub.io/api/hooks/8fde6043-69b6-11e8-bf37-0123456789ef', urlType: 'PUBLIC']]]]])
 ```
-
-### GitHub
 
 ## License
 
