@@ -147,7 +147,7 @@ To provide modularity, we have one main repository that represents a project, th
 In this example, we are using 3 different types of repositories:
 
 * **Role Repositories**: These repositories are linked in as submodules and contain all of the playbooks, modules, vars, etc. that comprise a the individual Ansible Roles:
-  * [network-dmvpn](https://github.com/ismc/ansible-network-dmvpn.git):  An Ansible Roles that deployes a DMVPN overlay over a hub and spoke network.
+  * [network-dmvpn](https://github.com/ismc/ansible-network-dmvpn.git):  An Ansible Role that deployes a DMVPN overlay over a hub and spoke network.
   * [network-backup](https://github.com/ismc/ansible-network-backup.git): An Ansible Role that provides backup, checkpoint, and rollback for network devices.
   * [cloudbuilder](https://github.com/ismc/ansible-cloudbuilder.git): An Ansible Role to build a cloud-agnostic model in a Public Cloud.
 * **Inventory Repositories**: These repositories contain the inventories that will be used by a particular project.
@@ -172,7 +172,7 @@ To use somewhat circular reasoning, we can test anything for which we can build 
 
 #### Unit Testing
 
-Unit testing in generally done in Ansible by testing roles.  An Ansible [Roles](http://docs.ansible.com/ansible/latest/user_guide/playbooks_reuse.html) is the main unit of code reuse and portability.  Roles are an aggregation of tasks, modules, vars, etc. that accomplish a complex operation.  The are written once, then leveraged multiple times across different playbooks.  Unit testing is done at the role level.  By testing the Role, we validate that it properly undertakes specific the task for which it was written.  For the purposes of this session, that Role is [network-dmvpn](https://github.com/ismc/ansible-network-dmvpn.git)
+Unit testing in generally done in Ansible by testing roles.  An Ansible [Role](http://docs.ansible.com/ansible/latest/user_guide/playbooks_reuse.html) is the main unit of code reuse and portability.  Roles are an aggregation of tasks, modules, vars, etc. that accomplish a complex operation.  The are written once, then leveraged multiple times across different playbooks.  Unit testing is done at the role level.  By testing the Role, we validate that it properly undertakes specific the task for which it was written.  For the purposes of this session, that Role is [network-dmvpn](https://github.com/ismc/ansible-network-dmvpn.git)
 
 #### Integration Testing
 
