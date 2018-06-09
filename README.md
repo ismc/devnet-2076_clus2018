@@ -219,7 +219,7 @@ properties([[$class: 'HudsonNotificationProperty', endpoints: [[buildNotes: '', 
 
 ## Repository Usage
 
-Since this is a complex system composes of several parts, all of those parts must be in places an configured to completely reproduce this work.  However, Since this repository used submodules, it has to be checked out recursivley:
+Since this is a complex system composes of several parts, all of those parts must be in place and configured to completely reproduce this work.  However, Since this repository used submodules, it has to be checked out recursivley:
 
 ```
 https://github.com/ismc/devnet-2076_clus2018.git --recursive
@@ -268,6 +268,25 @@ To destroy the testbed:
 ```
 ansible-playbook desroy-testbed.yml
 ```
+## WebEx Teams Integrations
+
+ChatOps functions are achieved using WebEx Teams.  The WebEx Teams app provides many integrations with various DevOps tools, including both GitHub and Jenkins.  These can be enabled for an arbitrary space via the WebEx Teams App Hub.
+
+### Jenkins
+In order to enable the Jenkins integration, you need to do the following:
+
+* Visit the WebEx Teams App Hub and enable the Jenkins integration for your space and copy the created webhook URL
+* Install the Notification plugin on your Jenkins server
+* Add an entry in your Jenkinsfile to call the WebEx Teams webhook you copied earlier for all notifications
+
+The required entry in the Jenkinsfile can be found by using the "Pipeline Syntax" functionality in Jenkins.  Go to the pipeline page in the Jenkins server and select Pipeline Syntax, then "properties" from the drop down list.  In here you can insert the webhook URL and generate the needed script code for your Jenkinsfile.
+
+The properties section should look something like:
+```
+properties([[$class: 'HudsonNotificationProperty', endpoints: [[buildNotes: '', urlInfo: [urlOrId: 'http://cisco-spark-integration-management-ext.cloudhub.io/api/hooks/8fde6043-69b6-11e8-bf37-0123456789ef', urlType: 'PUBLIC']]]]]) 
+```
+
+### GitHub
 
 ## License
 
