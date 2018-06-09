@@ -1,4 +1,4 @@
-importantbifurcation# DEVNET-2076: Cisco Live US 2018
+# DEVNET-2076: Cisco Live US 2018
 
 This repo contains the material used in the DEVNET-2076 session at Cisco Live US 2018.  It is a scaled down version of what might be used in a real environment that illustrates one possible DevOps pipeline for networks with Ansible.  
 
@@ -8,9 +8,9 @@ This repo contains the material used in the DEVNET-2076 session at Cisco Live US
 
 Infrastructure as Code IaC can be summarized as defining your infrastructure as code, then maintaining the lifecycle of that code (and your infrastructure as a result) through a application development-like process.  This code is generally a task-by-task translation of the Method of Procedure (MOP) for a particular complex operation (e.g. Add provision a new remote site, add a tenant network, etc).  More to the point, it is generally the culmination of the human experience of the Subject Matter Experts within the group that created the MOP.  Having these procedure and SME experience in code has the benefits of:
 
-* **Configuration Management**:
-* **Revision Control**:
-* **Drift Detection**: Configuration drift in the infrastructure by comparing it against the code the describes that infrastructure.
+* **Configuration Management**: Ensure the correctness and consistency of the code that defines the network
+* **Revision Control**: Manage and assign version to the changes to the code
+* **Drift Detection**: Detect configuration drift in the infrastructure by comparing it against the code the describes that infrastructure.
 * **Communication**: Instead of the architecture and the experience to run it being locked in the head of a few, it is accessible by all.  Furthermore, it allows different SMEs to leveraged other SME's area of expertise.
 
 Another aspect of IaC is the ability to actually run the MOP after it is translated into code.  This gives someone the ability to undertake these operations in a rapid, repeatable way that reduces the number of variations in the configuration of a network.
@@ -87,19 +87,23 @@ The SoT is then managed separately.  This is not to say that non of the SoT is i
 
 This SoT/Code bifurcation also enables the automation of the business processes that were likely the original goal of automation in the first place.  When the SoT is external to the automation infrastructure, those values that comprise it can be changed externally, then feed into the process.  For example, a user that wants to add an exception for a server can go to a self service portal to request that exception.  That request can then go through the review process to make sure that it is align with business policies and appropriately approved.  The SoT can be updated with this exception and the portal can call an API to tell the automation infrastructure to push out that change.  This accomplishes two equally important objectives:
 
-1. To take the network team out of the path of the CRUD
-2. To allow the network team to define and put checks around how the changes to the network are performed.
+1. To take the network team out of the CRUD
+2. To allow the network team to define and put checks around how changes to the network are performed
 
 ## DevOps Infrastructure
 
-Our DevOps infrastructure consists of 3 components:
+For this session, we present an infrastructure to implement a full NetDevOps workflow in a way that is representative to what most organization deploy.  It is predominately aimed at the Code part of the equation, although we demonstrate the common values that could be included in code as well as discuss the API that can be leveraged by an external SoT.
 
-* Source Control: GitHib
+Our NetDevOps workflow is facilitated by the following infrastructure:
+
+* Source Code Management: GitHib
 * Test Automation: Jenkins
-* Automation Orchestrator: Ansible Tower
+* Production Deployment: Ansible Tower
 * Collaboration Platform: Cisco WebEx Teams
 
-### Source Control
+### Source Code Management: GitHub
+
+We use GitHub for our source code management because of its ubiquitous nature and easy access.  Many organizations leverage GitHub Enterprise or some other internally install git system like GitLab or BitBucket.  Most SCMs have similar mechanisms to what is laid out in this description.
 
 #### Repository Layout
 
@@ -126,43 +130,41 @@ The layout of the repo is pretty standard for Ansible.  The main point is in how
     └── network-dmvpn           |
 ```
 
-Playbooks should embody the intent, architecture, and policy of a particular network.  It should *not* contain references to specific nodes nor the specific values that are used to configure these nodes.  That is:
+Playbooks should embody the intent, architecture, and policy of a particular network.  It should *not* contain references to specific nodes nor the specific values that are used to configure these nodes.  That brings us back to:
 
-#### Implementation (Inventory) + Definition (Playbooks) = Deployment
+#### Implementation (SoT) + Definition (Playbooks) = Deployment
 
-This is the key capability that we need to test playbooks.  We architect the playbook to meet the needs of our production network.  We then create a testbed that mimics the key aspects of the production network, but at a smaller scale.  When the inventory for the test network is fed into the playbooks, it yields the test network.  This obviously gives us the ability to catch simple syntactical errors, but it also give the ability to test the architecture defined in the playbooks on something other than the production network.
-
-#### Repository Types
-
-For this session we are using 3 different types of repositories:
-
-* Project Repository:  This is the top level repository that contains all of the Ansible Playbooks, Roles, and Inventory that is needed to a particular project.  It is representative of the kind of structure you could use in a production environment.
-* Role Repositories: These are repositories linked that contain all of the playbooks, modules, vars, etc. that comprise a single Ansible Role.
-* Inventory Repositories: These are repositories that contain the inventories that will be used in a partucular project.
+This is the key capability that we need to test playbooks.  We architect the playbook to meet the needs of our production network (i.e. architecture and policy).  We then create a testbed that mimics the key aspects of the production network, but at a smaller scale.  When the inventory/SoT for the test network is fed into the playbooks, it yields the test network.  This obviously gives us the ability to catch simple syntactical errors, but it also give the ability to test the architecture defined in the playbooks on something other than the production network.
 
 #### Repository Modularity
 
 To provide modularity, we have one main repository that represents a project, then several repositories linked in as submodules to provide the Roles.  Using submodules allows for keeping the roles in their own repositories to facilitate unite testing and the linking to a specific version of a Role.  Linking to a specific version of a Role that is known to work with a project allows for the choice of when to use a newer version.  This would generally be done as part of the integration testing done at the project repository level.
 
-In addition to the Ansible Role repositories, we have repositories for the inventories.  Since the version   
+#### Repositories
 
-### Included repositories and Roles
+In this example, we are using 3 different types of repositories:
 
-We include 3 Ansible Roles in the repository for demonstration:
-
-* [network-dmvpn](https://github.com/ismc/ansible-network-dmvpn.git):  An Ansible Roles that deployes a DMVPN overlay over a hub and spoke network.
-* [network-backup](https://github.com/ismc/ansible-network-backup.git): An Ansible Role that provides backup, checkpoint, and rollback for network devices.
-* [cloudbuilder](https://github.com/ismc/ansible-cloudbuilder.git): An Ansible Role to build a cloud-agnostic model in a Public Cloud.
+* **Role Repositories**: These repositories are linked in as submodules and contain all of the playbooks, modules, vars, etc. that comprise a the individual Ansible Roles:
+  * [network-dmvpn](https://github.com/ismc/ansible-network-dmvpn.git):  An Ansible Roles that deployes a DMVPN overlay over a hub and spoke network.
+  * [network-backup](https://github.com/ismc/ansible-network-backup.git): An Ansible Role that provides backup, checkpoint, and rollback for network devices.
+  * [cloudbuilder](https://github.com/ismc/ansible-cloudbuilder.git): An Ansible Role to build a cloud-agnostic model in a Public Cloud.
+* **Inventory Repositories**: These repositories contain the inventories that will be used by a particular project.
+* **Project Repository**:  This is the top level repository that contains all of the Ansible Playbooks, Roles, and Inventory that is needed by a particular project.  It is representative of the kind of structure you could use in a production environment.
 
 ### Branch protection
 
 GitHub's [branch protection](https://help.github.com/articles/about-protected-branches/) ensures that collaborators on your repository cannot make irrevocable changes to branches. Enabling protected branches also allows you to enable other optional checks and requirements, like required status checks and required reviews.
 
-## Test Automation: Jenkins
+For this demonstration, we protect the `master` branch and develop on the `devel` branch.  Code changes can be checked in directly to the `devel` branch.  The `devel` branch is tested ad-hoc and at regular intervals.  Changes are not allowed to be pushed directly into the `master` branch and must go through the full NetDevOps workflow by using a Pull Request (PR).  The `master` branch is also tested ad-hoc and on regular intervals.
 
-### What kind of changes can we check.
+### Test Automation: Jenkins
 
-### Testing Methodologies: Unit vs. Integration
+Jenkins is a self-contained, open source automation server which can be used to automate all sorts of tasks related to building, testing, and delivering
+or deploying software.
+
+#### What kind of changes can we check.
+
+#### Testing Methodologies: Unit vs. Integration
 
 #### Unit Testing
 
@@ -185,7 +187,6 @@ For this session, we use the example of a hub/spoke network that uses DMVPN as a
 
 With any IaC paradigm, the code _is_ the infrastructure, so you should protect it as such.
 
-
 ### Test network
 
 Our DMVPN testbed consists of 3 sites, each a VPC in AWS.  Each site have a Cisco CSR as its site router with and inside and outside interface.  Each inside network has a single host for connectivity testing:
@@ -193,8 +194,30 @@ Our DMVPN testbed consists of 3 sites, each a VPC in AWS.  Each site have a Cisc
 ![wan-testbed](wan-testbed.png)
 
 ### Test Network Locking
+### Production Deployment: Ansible Tower
+### Collaboration Platform: Cisco WebEx Teams
 
-## Usage
+
+ChatOps functions are achieved using WebEx Teams. The WebEx Teams app provides many integrations with various DevOps tools, including both GitHub and Jenkins. These can be enabled for an arbitrary space via the WebEx Teams App Hub.
+
+#### WebEx Teams Jenkins integration
+
+
+In order to enable the Jenkins integration, you need to do the following:
+
+* Visit the WebEx Teams App Hub and enable the Jenkins integration for your space and copy the created webhook URL
+* Install the Notification plugin on your Jenkins server
+* Add an entry in your Jenkinsfile to call the WebEx Teams webhook you copied earlier for all notifications
+
+The required entry in the Jenkinsfile can be found by using the "Pipeline Syntax" functionality in Jenkins. Go to the pipeline page in the Jenkins server and select Pipeline Syntax, then "properties" from the drop down list. In here you can insert the webhook URL and generate the needed script code for your Jenkinsfile.
+
+The properties section should look something like:
+
+```
+properties([[$class: 'HudsonNotificationProperty', endpoints: [[buildNotes: '', urlInfo: [urlOrId: 'http://cisco-spark-integration-management-ext.cloudhub.io/api/hooks/8fde6043-69b6-11e8-bf37-0123456789ef', urlType: 'PUBLIC']]]]])
+```
+
+## Repository Usage
 
 Since this is a complex system composes of several parts, all of those parts must be in places an configured to completely reproduce this work.  However, Since this repository used submodules, it has to be checked out recursivley:
 
