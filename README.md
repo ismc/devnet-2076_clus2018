@@ -1,12 +1,12 @@
 # DEVNET-2076: Cisco Live US 2018
 
-This repository contains the companion material for the DEVNET-2076 session at Cisco Live US 2018.  It is a scaled down version of what might be used in a real environment that illustrates one possible DevOps pipeline for network automation with Ansible.  
+This repository contains the companion material for the DEVNET-2076 session at Cisco Live US 2018.  It is a scaled down version of what might be used in a real environment that illustrates one possible DevOps pipeline for network automation with Ansible.
 
 ## Background
 
 ### What is Infrastructure as Code?
 
-Infrastructure as Code IaC can be summarized as defining your infrastructure as code, then maintaining the lifecycle of that code (and your infrastructure as a result) through an application development-like process.  This code is generally a task-by-task translation of the Method of Procedure (MOP) for a particular complex operation (e.g. Provision a new remote site, add a tenant network, etc).  More to the point, it is generally the culmination of the human experience of the Subject Matter Experts within the group that created the MOP.  Having these procedures and SME experience in code has the benefits of:
+Infrastructure as Code (IaC) can be summarized as defining your infrastructure as code, then maintaining the lifecycle of that code (and your infrastructure as a result) through an application development-like process.  This code is generally a task-by-task translation of the Method of Procedure (MOP) for a particular complex operation (e.g. provision a new remote site, add a tenant network, etc.).  More to the point, it is generally the culmination of the human experience of the Subject Matter Experts within the group that created the MOP.  Having these procedures and SME experience in code has the benefits of:
 
 * **Configuration Management**: Ensure the correctness and consistency of the code that defines the network
 * **Revision Control**: Manage and assign versions to the changes to the code
@@ -30,25 +30,25 @@ That is, DevOps adds the process (e.g. collaboration, testing, deployment) that 
 
 ## Why NetDevOps?
 
-The ability to undertake operation fast with automation is enticing, but it must be done with caution and with focus on a particular outcome.  Automation tools such as Ansible are simply a mechanism to automate the individual tasks that are normally manually performed by a network operations teams.  Ansible has no innate intelligence for determining a good task from a bad task, so it will happily and efficiently create or destroy depending on the inventory and playbooks fed to it.  Also, Infrastructure as Code (IaC) network automation systems are generally made up of components from several different sources.  Each of these sources are separately developed and versioned.  A change in one of these components can perturb the entire system.  For these reasons, a NetDevOps process should be integrated into any meaningful IaC deployment to increase the likelihood of success and decrease any possible damage to operations.
+The ability to undertake operation fast with automation is enticing, but it must be done with caution and with focus on a particular outcome.  Automation tools such as Ansible are simply a mechanism to automate the individual tasks that are normally manually performed by a network operations teams.  Ansible has no innate intelligence for determining a good task from a bad task, so it will happily and efficiently create or destroy depending on the inventory and playbooks fed to it.  Also, IaC network automation systems are generally made up of components from several different sources.  Each of these sources are separately developed and versioned.  A change in one of these components can perturb the entire system.  For these reasons, a NetDevOps process should be integrated into any meaningful IaC deployment to increase the likelihood of success and decrease any possible damage to operations.
 
 What does that look like?
 
 ![netdevops](netdevops.png)
 
-1. The engineer checks the branch (either personal or shared dev branch), makes the code change to that branch, and tests the change in local sandbox.  Once the engineer is satisfied with the change and has properly tested it, they create a Pull Request (PR) to tell everyone that they are ready to submit the change.  This is where others in the group get to see and comment on the change _before_ it is merged.  This is also were validation tests can be run _before_ the change is merged.
+1. The engineer checks out the branch (either personal or shared dev branch), makes the code change to that branch, and tests the change in a local sandbox.  Once the engineer is satisfied with the change and has properly tested it, they create a Pull Request (PR) to tell everyone that they are ready to submit the change.  This is where others in the group get to see and comment on the change _before_ it is merged.  This is also where validation tests can be run _before_ the change is merged.
 
-2. Jenkins, or some other automated testing engine, is used at this point to perform the validations tests.  These tests can be performed through Jenkins manually (either directly or something like a comment) or automatically for every PR.  In either case, Jenkins reports back the results of the tests to the ChatOps platform, Cisco WebEx Teams.
+2. Jenkins, or some other automated testing engine, is used at this point to perform the validations tests.  These tests can be performed through Jenkins manually (either directly or via something like a comment) or automatically for every PR.  In either case, Jenkins reports back the results of the tests to the ChatOps platform, Cisco WebEx Teams.
 
 3. At this point, the group collaborates on the change to make sure that it is understood, that it aligns with organizational best practices, and that it is properly tested with standardized validation tests.
 
-4. Once the change is agreed upon and properly tested, it is merged into the production branch.  
+4. Once the change is agreed upon and properly tested, it is merged into the production branch.
 
 5. Jenkins can either test the production branch once the change is merged, at regular intervals, or both.
 
 6. The change now lives in the production (i.e. "Golden") artifact repository.  From here, an orchestrion tool such as Ansible Tower can pick up that artifact and push it out as part of an operator-initiated request, a timed running to validate the configuration of the infrastructure with the IaC that defines it, or an API call from another application.
 
-**In a strict IaC paradign, _EVERY_ change goes through this process.**
+**In a strict IaC paradigm, _EVERY_ change goes through this process.**
 
 ## Outcomes: Automated Humans vs. Automated Business
 
@@ -61,19 +61,19 @@ Let us pause for a moment to ponder what we are trying to achieve.  If we _just_
 There are basically two types of changes that are made to a network in steady state operations:
 
 * Architectural/Engineering: These are changes to the architecture of the network (e.g. Routing, QoS, Multicast) that generally affect the entire network.  It is also the architecture for how new services are deployed (e.g. tenants, remote sites, etc.)
-* Create, Read, Update, Delete (CRUD): These are changes that deal with delivering of network services to a particular customer or application (e.g. Putting a port in a VLAN, adding an ACE to an ACL, or adding a load balancing rule).
+* Create, Read, Update, Delete (CRUD): These are changes that deal with delivering of network services to a particular customer or application (e.g. putting a port in a VLAN, adding an ACE to an ACL, or adding a load balancing rule).
 
-The rigor of IaC is absolutely the way to make major architectural changes to a network because of the network-wide effect that these changes have and the relatively small number of changes that occur.   
+The rigor of IaC is absolutely the way to make major architectural changes to a network because of the network-wide effect that these changes have and the relatively small number of changes that occur.
 
 CRUD is often different, however.  Making a single change (e.g. SNMP Community Strings) on thousands of devices is an operation for which the overhead of NetDevOps is justified.  However, if a single change is needed on a single device (e.g. Change a interface's access VLAN), the NetDevOps overhead slows that task down significantly.
 
 This overhead is not necessarily a bad thing, even for small changes.  There are significant advantages in enforcing configuration management, revision control, code review, and testing on _every_ change.  It does not, however, always make network operations faster or easier.  This increased friction can make it unpalatable to many network teams and hinder adoption.
 
-We should then focus more on automating business processes and less on _just_ automating humans.  
+We should then focus more on automating business processes and less on _just_ automating humans.
 
 ### Source of Truth (SoT)
 
-One area in which Devops for application development differs from DevOps for network operation is the Source of Truth.  The Source of Truth of a network contains all of the values that make a network _that_ network.  In its simplest form, those values are things like hostname, NTP servers, users, AAA servers, etc.  These values are relatively few in number and are used across all of the devices.  The problem comes with values that define things like interface configuration, ACLs, and load-balancing rules.  Even for a mid-size network, the number of values that define the configuration of that network could be over 100,000.  Keeping 100,000+ values in flat files in a code repository can be at best painful and at worst unmanageable.
+One area in which Devops for application development differs from DevOps for network operation is the Source of Truth (SoT).  The Source of Truth of a network contains all of the values that make a network _that_ network.  In its simplest form, those values are things like hostname, NTP servers, users, AAA servers, etc.  These values are relatively few in number and are used across all of the devices.  The problem comes with values that define things like interface configuration, ACLs, and load-balancing rules.  Even for a mid-size network, the number of values that define the configuration of that network could be over 100,000.  Keeping 100,000+ values in flat files in a code repository can be at best painful and at worst unmanageable.
 
 Another use case in which the separation of the SoT from the Code is critical is Cloud and other virtualized platforms.  On these virtualized platforms, virtual routers, firewalls, load-balancers, etc. are being dynamically created and destroyed to accomodate customer requests and/or user workloads.  To manually copy this inventory data from their native platforms (e.g. AWS) to flat files would fight against the agile posture that we are trying to achieve with automation.  This can better be accommodated by pulling the SoT dynamically directly from those platforms.
 
@@ -83,14 +83,14 @@ This is why, for any meaningful deployments, the SoT is kept and managed separat
 
 When we decouple the SoT from the code, it is the code that is strictly managed through the full NetDevOps workflow since changes to it affect the architecture and policy of the entire network, which justifies the associated rigor and overhead.
 
-The SoT is then managed separately.  This is not to say that none of the SoT is in code/file form.  Much of the common values that define constants across the network and have a large collateral affect (e.g. NTP servers, AAA servers, SNMP Community Strings) can still be managed with code.  But the values associated with the day-to-day CRUD generally live in an external database or CMDB.
+The SoT is then managed separately.  This is not to say that none of the SoT is in code/file form.  Many of the common values that define constants across the network and have a large collateral affect (e.g. NTP servers, AAA servers, SNMP Community Strings) can still be managed with code.  But the values associated with the day-to-day CRUD generally live in an external database or CMDB.
 
 ### Automating Business Processes: API-Driven Automation
 
 This SoT/Code bifurcation also enables the automation of the business processes that were likely the original goal of the enterprise's automation effort in the first place.  When the SoT is external to the automation infrastructure, the values that comprise it can be changed externally, then feed into the process.  For example, a user that wants to add an exception for a server can go to a self service portal to request that exception.  That request can then go through the review process to make sure that it is aligned with business policies and appropriately approved.  The SoT can be updated with this exception and the portal can call an API to tell the automation infrastructure to push out that change.  This accomplishes two equally important objectives:
 
 1. It takes the network team out of the CRUD
-2. Is allows the network team to define and put checks around how changes to the network are performed
+2. It allows the network team to define and put checks around how changes to the network are performed
 
 ## DevOps Infrastructure
 
@@ -109,7 +109,7 @@ We use GitHub for our source code management because of its ubiquitous nature an
 
 #### Repository Layout
 
-The layout of the repo is pretty standard for Ansible.  The main point is in how the layout leverages the default behavior of Ansible and facilitates the NetDevOps workflow.  For example, Ansible allows one to specify the inventory to be used.  In this repo, we have two different inventories: test and prod. A couple of key points to remember about Ansible is that an `inventory` contains both the list of devices to automate and the key/value pairs (a.k.a Source of Truth) that defines how those devices are configured.  
+The layout of the repo is pretty standard for Ansible.  The main point is in how the layout leverages the default behavior of Ansible and facilitates the NetDevOps workflow.  For example, Ansible allows one to specify the inventory to be used.  In this repo, we have two different inventories: test and prod. A couple of key points to remember about Ansible is that an `inventory` contains both the list of devices to automate and the key/value pairs (a.k.a Source of Truth) that defines how those devices are configured.
 
 ```
 .
@@ -172,9 +172,9 @@ Jenkins is a self-contained, open source automation server which can be used to 
 
 To use somewhat circular reasoning, we can test anything for which we can build a test.  Testing the syntactical correctness is easy.  We can simply run the playbooks against anything and they will either fail or not.  Better yet, we can use Ansible's built-in syntactical checker.  To test the functionality of the code, we perform a combination of Unit and Integration testing.
 
-For most everything else, a validation test much be concocted to for a particular change.  That test can either be focused on that one partucular test, or a system test to make sure that system is operating as a whole.  Advertising a new network via BGP, for example, is a use can that can be tested directly.  In this case, the network can be added to the prefix list, then that prefix list can be checked in the list of routes being advertised by the router.
+For most everything else, a validation test must be concocted to for a particular change.  That test can either be focused on that one partucular change, or a system test to make sure that system is operating as a whole.  Advertising a new network via BGP, for example, is a use can that can be tested directly.  In this case, the network can be added to the prefix list, then that prefix list can be checked in the list of routes being advertised by the router.
 
-In this session, we are deploying a DMVPN overlay.  We could validate each component of the DVMPN deployment (e.g. The tunnels are up, the neighbors are seen via NHRP, the EIGRP routes are present, etc.), but we perform a system test instead.  That system test pings every router's tunnel interface from every other router, validating the tunnels and HNRP functionality, then it pings each router's loopback address from every other router, validating EIGRP functionality.
+In this session, we are deploying a DMVPN overlay.  We could validate each component of the DVMPN deployment (e.g. the tunnels are up, the neighbors are seen via NHRP, the EIGRP routes are present, etc.), but we perform a system test instead.  That system test pings every router's tunnel interface from every other router, validating the tunnels and HNRP functionality, then it pings each router's loopback address from every other router, validating EIGRP functionality.
 
 #### Testing Methodologies: Unit vs. Integration
 
@@ -207,7 +207,7 @@ Ansible Tower as a means for pushing out production artifacts is important for 2
 
 **Controlled release of automation**:  If you go through all of the work of making sure that your code is correct, you also want to make sure that it is run on the right devices, by the right people, at the right times.
 
-**API-Driven Automation**: In order for the network team to get out of the CRUD, we need to provide access to other application in the enterprise.  Most often, this external application is a self-service portal like Service Now.  Generally, these self-service portals are also configuration database that can act as part of the SoT.
+**API-Driven Automation**: In order for the network team to get out of the CRUD, we need to provide access to other application in the enterprise.  Most often, this external application is a self-service portal like Service Now.  Generally, these self-service portals are also configuration databases that can act as part of the SoT.
 
 Putting all of this together, we get the workflow depicted in the following diagram.  The left side of the diagram shows the "Dev" part DevOps that we have already covered.  The right side of the picture is where the "Ops" comes in and one way that it can be used in automating a business process.  In this case, we use Ansible Tower to push out the production "artifacts".  These artifacts can be push out in one of three ways:
 
@@ -215,7 +215,7 @@ Putting all of this together, we get the workflow depicted in the following diag
 * **Operator UI**: Ansible Tower provides a more approachable interface to the automation infrastructure that can enforce roles-based access, manage credentials, and log activity.
 * **API-Driven Automation**: The last, and potentially most powerful form of leveraging the production playbooks created in the Dev process is the API.  One potential workflow illustrated in the figure is:
 
-  1. User requests new service (e.g. A new public cloud node)
+  1. User requests new service (e.g. a new public cloud node)
   2. After going through the approval process, Service Now calls the Ansible Tower API to create the new service
   3. Ansible Tower runs the playbook, feeding it the appropriate inventory and SoT information to create the service.
   4. Ansible Tower calls the Service Now API to append information to the request and close the ticket, informing the user
