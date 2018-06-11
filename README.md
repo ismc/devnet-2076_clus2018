@@ -156,7 +156,7 @@ In this example, we are using 3 different types of repositories:
   * [network-backup](https://github.com/ismc/ansible-network-backup.git): An Ansible Role that provides backup, checkpoint, and rollback for network devices.
   * [cloudbuilder](https://github.com/ismc/ansible-cloudbuilder.git): An Ansible Role to build a cloud-agnostic model in a Public Cloud.
 * **Inventory Repositories**: These repositories contain the inventories that will be used by a particular project.
-* **Project Repository**:  This is the top level repository that contains all of the Ansible Playbooks, Roles, and Inventory used in our [ARCBRK-2023](https://github.com/ismc/brkarc-2023_clus2018) session.  It is representative of the kind of structure you could use in a production environment.
+* **Project Repository**:  This is the top level repository that contains all of the Ansible Playbooks, Roles, and Inventory used in our [BRKARC-2023](https://github.com/ismc/brkarc-2023_clus2018) session.  It is representative of the kind of structure you could use in a production environment.
 
 ### Branch protection
 
