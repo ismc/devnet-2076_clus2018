@@ -195,7 +195,7 @@ Since it is desirable to avoid testing on a production network whenever possible
 
 ### Test network
 
-For this session, our production network is a multi-site cloud network with a physical datacenter.  The playbooks for that operation rely on two roles: cloudbuilder to build the cloud nodes and network-dmvpn to configure the DMPVN overlay that connects the sites together.  We chose these scenario because it is a common deployment and it is an easy deployment for which to crate a test network.  Since the spokes are virtualized in a Public Cloud, we can simple virtualize them the same way in the test network.  The physical site router runs IOS-XE, so we can visualize that using the same Cisco Cloud Services Router that we use in the spokes.  This gives us a very accurate approximation of our production network for our testing.
+For this session, our production network is a multi-site cloud network with a physical datacenter.  The playbooks for that operation rely on two roles: cloudbuilder to build the cloud nodes and network-dmvpn to configure the DMPVN overlay that connects the sites together.  We chose this scenario because it is a common deployment and it is an easy deployment for which to create a test network.  Since the spokes are virtualized in a Public Cloud, we can simple virtualize them the same way in the test network.  The physical site router runs IOS-XE, so we can visualize that using the same Cisco Cloud Services Router that we use in the spokes.  This gives us a very accurate approximation of our production network for our testing.
 
 Specifically, our DMVPN testbed consists of 3 sites, each a VPC in AWS.  Each site has a Cisco Cloud Services Router as its site router with and inside and outside interface.  Each inside network has a single host for connectivity testing:
 
@@ -203,7 +203,7 @@ Specifically, our DMVPN testbed consists of 3 sites, each a VPC in AWS.  Each si
 
 ### Production Deployment: Ansible Tower
 
-Ansible Tower as a means for pushing out production artifacts is important for 2 reasons:
+Ansible Tower as a means for pushing out production artifacts is important for two reasons:
 
 **Controlled release of automation**:  If you go through all of the work of making sure that your code is correct, you also want to make sure that it is run on the right devices, by the right people, at the right times.
 
