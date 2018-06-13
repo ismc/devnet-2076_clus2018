@@ -22,7 +22,7 @@
 1. *Chris*: Update the main repository with the
   1. `cd brkarc-2023_clus2018`
   1. `git checkout devel`
-  1. `git submodule update --recursive --remote`
+  1. `git submodule update --remote roles/network-dmvpn`
   1. `git status`
   1. `git commit -am "Enabled spoke-to-spoke"`
   1. `git push origin devel`
